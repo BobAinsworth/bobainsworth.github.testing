@@ -2,123 +2,217 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Testing Site</title>
-
+  <title>US SNAP Beneficiaries by State</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Plotly CDN -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
-    :root {
-      --bg: #f7fafc;
-      --surface: #ffffff;
-      --text: #0b1220;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --accent: #165dff;
-    }
-
     body {
-      margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    /* Header styled like main site */
-    header.hero {
-      background: #f9fafb;
-      border-bottom: 1px solid var(--border);
-      padding: 24px 16px;
-    }
-
-    .hero-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 999px;
-      background: var(--accent);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
-
-    .hero-text h1 {
+                   Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      font-size: 1.6rem;
-      font-weight: 700;
+      padding: 0;
+      background: #f7f9fc;
+      color: #111827;
     }
-
-    .hero-text p {
-      margin: 2px 0 0;
-      font-size: 0.95rem;
-      color: var(--muted);
+    header {
+      padding: 16px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(15,23,42,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 650;
+    }
     main {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 24px auto 32px;
-      background: var(--surface);
-      padding: 20px 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-      font-size: 1.05rem;
-      line-height: 1.4;
+      padding: 0 16px;
     }
-
-    .link-list a {
-      display: block;
-      padding: 4px 0; /* single-spaced links */
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 1.05rem;
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+      padding: 18px 18px 10px;
     }
-
-    .link-list a:hover {
-      text-decoration: underline;
+    #map {
+      width: 100%;
+      height: 620px;
     }
-
-    footer {
-      text-align: center;
-      padding: 16px;
-      color: var(--muted);
-      font-size: 0.9rem;
+    .note {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="avatar">BA</div>
-      <div class="hero-text">
-        <h1>Bob Ainsworth</h1>
-        <p>Testing Site · Preview and experiment pages</p>
-      </div>
-    </div>
+  <header>
+    <h1>US SNAP Beneficiaries by State</h1>
   </header>
 
   <main>
-    <div class="link-list">
-      <a href="test1.html">Test Page 1</a>
-      <a href="test2.html">Test Page 2</a>
-      <a href="test3.html">Test Page 3</a>
-      <!-- Add more links here -->
+    <div class="card">
+      <p class="note">
+        Use the buttons above the map to switch between
+        <strong>total SNAP beneficiaries</strong> and
+        <strong>percent of state population on SNAP</strong>.
+        Hover over a state to see details.
+      </p>
+      <div id="map"></div>
     </div>
   </main>
 
-  <footer>
-    © 2025 Bob Ainsworth
-  </footer>
+  <script>
+    // --- Data (from your table) ---
 
+    // USPS state codes (including DC), in the same order as the data below.
+    var states = [
+      "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL",
+      "GA","HI","ID","IL","IN","IA","KS","KY","LA","ME",
+      "MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
+      "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI",
+      "SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+    ];
+
+    var stateNames = [
+      "Alabama","Alaska","Arizona","Arkansas","California","Colorado",
+      "Connecticut","Delaware","District of Columbia","Florida",
+      "Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas",
+      "Kentucky","Louisiana","Maine","Maryland","Massachusetts",
+      "Michigan","Minnesota","Mississippi","Missouri","Montana",
+      "Nebraska","Nevada","New Hampshire","New Jersey","New Mexico",
+      "New York","North Carolina","North Dakota","Ohio","Oklahoma",
+      "Oregon","Pennsylvania","Rhode Island","South Carolina",
+      "South Dakota","Tennessee","Texas","Utah","Vermont","Virginia",
+      "Washington","West Virginia","Wisconsin","Wyoming"
+    ];
+
+    // SNAP beneficiaries (people) – your "K" values converted to thousands.
+    var beneficiaries = [
+      736000,  66000,  887000, 240000, 5494000, 523000, 419000, 114000, 142000, 3293000,
+      1664000, 166000, 183000, 1960000, 704000, 320000, 257000, 596000, 874000, 194000,
+      659000, 923000, 1373000, 500000, 411000, 705000, 130000, 173000, 495000, 103000,
+      965000, 446000, 2874000, 1501000,  59000, 1464000, 459000, 695000, 1906000, 145000,
+      659000,  80000, 896000, 3594000, 166000,  70000, 902000, 1094000, 302000, 687000, 24000
+    ];
+
+    // State populations
+    var population = [
+       5157699,  740133,  7582384,  3088354, 39431263,  5957493,  3675069,  1051917,   702250,
+      23372215, 11180878, 1446146,  2001619, 12710158,  6924275,  3241488,  2970606,  4588372,
+       4597740, 1405012,  6263220,  7136171, 10140459,  5793151,  2943045,  6245466,  1137233,
+       2005465, 3267467,  1409032,  9500851, 2130256, 19867248, 11046024,   796568, 11883304,
+       4095393, 4272371, 13078751,  1112308,  5478831,  924669,  7227750, 31290831,  3503613,
+        648493, 8811195, 7958180,  1769979,  5960975,   587618
+    ];
+
+    // Percent of population on SNAP
+    var percent = [
+      14.3,  9.0, 11.7,  7.8, 13.9,  8.8, 11.4, 10.9, 20.3, 14.1,
+      14.9, 11.5,  9.2, 15.4, 10.2,  9.9,  8.7, 13.0, 19.0, 13.8,
+      10.5, 12.9, 13.5,  8.6, 14.0, 11.3, 11.4,  8.6, 15.1,  7.3,
+      10.2, 20.9, 14.5, 13.6,  7.4, 12.3, 11.2, 16.3, 14.6, 13.1,
+      12.0,  8.7, 12.4, 11.5,  4.7, 10.8, 10.2, 13.7, 17.0, 11.5, 4.1
+    ];
+
+    // Build hover text with all three metrics
+    var hover = [];
+    for (var i = 0; i < states.length; i++) {
+      var line = stateNames[i] + "<br>" +
+        "Beneficiaries: " + beneficiaries[i].toLocaleString() + " people<br>" +
+        "Population: " + population[i].toLocaleString() + "<br>" +
+        "Share: " + percent[i].toFixed(1) + "%";
+      hover.push(line);
+    }
+
+    // Trace 1: absolute beneficiaries
+    var traceBeneficiaries = {
+      type: "choropleth",
+      locationmode: "USA-states",
+      locations: states,
+      z: beneficiaries,
+      text: hover,
+      hoverinfo: "text",
+      colorscale: "Blues",
+      marker: {
+        line: {
+          color: "white",
+          width: 0.6
+        }
+      },
+      colorbar: {
+        title: "People"
+      },
+      visible: true,
+      name: "Beneficiaries"
+    };
+
+    // Trace 2: percent of population
+    var tracePercent = {
+      type: "choropleth",
+      locationmode: "USA-states",
+      locations: states,
+      z: percent,
+      text: hover,
+      hoverinfo: "text",
+      colorscale: "Purples",
+      marker: {
+        line: {
+          color: "white",
+          width: 0.6
+        }
+      },
+      colorbar: {
+        title: "% of population"
+      },
+      visible: false,
+      name: "% of population"
+    };
+
+    var data = [traceBeneficiaries, tracePercent];
+
+    var layout = {
+      title: "SNAP Beneficiaries by State",
+      geo: {
+        scope: "usa"
+      },
+      margin: {l: 10, r: 10, t: 60, b: 10},
+      updatemenus: [{
+        type: "buttons",
+        direction: "right",
+        x: 0.5,
+        y: 1.12,
+        xanchor: "center",
+        showactive: true,
+        buttons: [
+          {
+            label: "Beneficiaries",
+            method: "update",
+            args: [
+              {visible: [true, false]},
+              {title: "SNAP Beneficiaries by State — Absolute counts"}
+            ]
+          },
+          {
+            label: "% of Population",
+            method: "update",
+            args: [
+              {visible: [false, true]},
+              {title: "SNAP Beneficiaries by State — % of population"}
+            ]
+          }
+        ]
+      }]
+    };
+
+    Plotly.newPlot("map", data, layout, {responsive: true});
+  </script>
 </body>
 </html>
