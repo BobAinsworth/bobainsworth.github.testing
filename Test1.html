@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing Site</title>
+
+  <style>
+    :root {
+      --bg: #f7fafc;
+      --surface: #ffffff;
+      --text: #0b1220;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #165dff;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Header styled like main site */
+    header.hero {
+      background: #f9fafb;
+      border-bottom: 1px solid var(--border);
+      padding: 24px 16px;
+    }
+
+    .hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .hero-text h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .hero-text p {
+      margin: 2px 0 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    main {
+      max-width: 900px;
+      margin: 24px auto 32px;
+      background: var(--surface);
+      padding: 20px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      font-size: 1.05rem;
+      line-height: 1.4;
+    }
+
+    .link-list a {
+      display: block;
+      padding: 4px 0; /* single-spaced links */
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 1.05rem;
+    }
+
+    .link-list a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="avatar">BA</div>
+      <div class="hero-text">
+        <h1>Bob Ainsworth</h1>
+        <p>Testing Site · Preview and experiment pages</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="link-list">
+      <a href="test1.html">Test Page 1</a>
+      <a href="test2.html">Test Page 2</a>
+      <a href="test3.html">Test Page 3</a>
+      <!-- Add more links here -->
+    </div>
+  </main>
+
+  <footer>
+    © 2025 Bob Ainsworth
+  </footer>
+
+</body>
+</html>
